@@ -1,3 +1,4 @@
+// Cria, popula e vincula os buffers
 export const createBuffer = (gl, data) => {
   const buffer = gl.createBuffer();
 
@@ -7,6 +8,7 @@ export const createBuffer = (gl, data) => {
   return buffer;
 };
 
+// Vincula os buffers
 export const bindBuffer = (gl, program, name, buffer) => {
   const attributeLocation = gl.getAttribLocation(program, name);
 
@@ -17,6 +19,7 @@ export const bindBuffer = (gl, program, name, buffer) => {
   return attributeLocation;
 };
 
+// Inicializa os buffers de posição
 const initBuffers = (gl, model) => {
   const vertexes = model.vertexPositions;
 
