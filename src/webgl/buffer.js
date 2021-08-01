@@ -1,3 +1,4 @@
+// Cria, popula e vincula os buffers
 export const createBuffer = (gl, data) => {
   const buffer = gl.createBuffer();
 
@@ -7,16 +8,18 @@ export const createBuffer = (gl, data) => {
   return buffer;
 };
 
+// Vincula os buffers
 export const bindBuffer = (gl, program, name, buffer) => {
-  const attributeLocation = gl.getAttribLocation(program, name);
+  const attribLocation = gl.getAttribLocation(program, name);
 
-  gl.enableVertexAttribArray(attributeLocation);
+  gl.enableVertexAttribArray(attribLocation);
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-  gl.vertexAttribPointer(attributeLocation, 3, gl.FLOAT, false, 0, 0);
+  gl.vertexAttribPointer(attribLocation, 3, gl.FLOAT, false, 0, 0);
 
-  return attributeLocation;
+  return attribLocation;
 };
 
+// Inicializa os buffers de posição
 const initBuffers = (gl, model) => {
   const vertexes = model.vertexPositions;
 

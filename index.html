@@ -10,13 +10,107 @@
       crossorigin="anonymous"
       defer
     ></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="styles.css" />
   </head>
 
-  <body style="padding: 0; margin: 0; overflow: hidden">
-    <canvas
-      id="text"
-      style="position: absolute; left: 0px; top: 0px; z-index: 10"
-    ></canvas>
+  <body>
+    <div id="menu">
+      <div class="card" style="width: 16vw">
+        <div class="card-body">
+          <h5 class="card-title">Informações</h5>
+
+          <label for="name" class="fw-bold col-form-label col-form-label-sm"
+            >Nome</label
+          >
+          <input
+            class="form-control form-control-sm"
+            id="name"
+            value="Igor Antun da Costa Gago"
+            maxlength="47"
+          />
+
+          <label
+            for="filiation1"
+            class="fw-bold col-form-label col-form-label-sm"
+            >Filiação 1</label
+          >
+          <input
+            class="form-control form-control-sm"
+            id="filiation1"
+            value="Fernanda Antun da Costa"
+            maxlength="29"
+          />
+
+          <label
+            for="filiation2"
+            class="fw-bold col-form-label col-form-label-sm"
+            >Filiação 2</label
+          >
+          <input
+            class="form-control form-control-sm"
+            id="filiation2"
+            value="Márcio de Miranda Gago"
+            maxlength="29"
+          />
+
+          <label for="birthday" class="fw-bold col-form-label col-form-label-sm"
+            >Data de nascimento</label
+          >
+          <input
+            class="form-control form-control-sm"
+            id="birthday"
+            value="22/12/1999"
+            maxlength="10"
+          />
+        </div>
+      </div>
+      <br />
+      <div class="card" style="width: 16vw">
+        <div class="card-body">
+          <h5 class="card-title">Configurações</h5>
+
+          <label for="name" class="fw-bold col-form-label col-form-label-sm"
+            >Velocidade de rotação</label
+          >
+          <input
+            id="rotationSpeed"
+            type="range"
+            class="form-range"
+            min="-0.1"
+            max="0.1"
+            value="0.005"
+            step="0.001"
+          />
+          
+          <label class="fw-bold col-form-label col-form-label-sm"
+            >Eixos de rotação</label
+          >
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="rotationXAxis">
+            <label class="form-check-label" for="rotationXAxis">Rotacionar eixo X</label>
+          </div>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="rotationYAxis" checked="true">
+            <label class="form-check-label" for="rotationYAxis">Rotacionar eixo Y</label>
+          </div>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="rotationZAxis">
+            <label class="form-check-label" for="rotationZAxis">Rotacionar eixo Z</label>
+          </div>
+          
+          <hr/>
+          <button type="button" class="btn btn-secondary" onclick="resetMatrixes()">Resetar</button>
+        </div>
+      </div>
+      </div>
+    </div>
+    <canvas id="text"></canvas>
     <canvas id="canvas"></canvas>
 
     <script type="module" src="src/index.js"></script>

@@ -1,0 +1,15 @@
+body {
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+#text {
+  display: none;
+}
+
+#menu {
+  position: absolute;
+  top: 32px;
+  left: 32px;
+}
