@@ -17,19 +17,18 @@ export const initShaderProgram = (gl, vertexSrc, fragmentSrc) => {
   const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vertexSrc);
   const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fragmentSrc);
 
-  const shaderProgram = gl.createProgram();
-  gl.attachShader(shaderProgram, vertexShader);
-  gl.attachShader(shaderProgram, fragmentShader);
-  gl.linkProgram(shaderProgram);
+  const program = gl.createProgram();
+  gl.attachShader(program, vertexShader);
+  gl.attachShader(program, fragmentShader);
+  gl.linkProgram(program);
+  gl.useProgram(program);
 
-  if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
     alert(
-      `Não foi possível inicializar o shader: ${gl.getProgramInfoLog(
-        shaderProgram
-      )}`
+      `Não foi possível inicializar o shader: ${gl.getProgramInfoLog(program)}`
     );
     return null;
   }
 
-  return shaderProgram;
+  return program;
 };

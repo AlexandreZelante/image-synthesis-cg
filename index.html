@@ -13,13 +13,11 @@
   </head>
 
   <body style="padding: 0; margin: 0; overflow: hidden">
-    <canvas id="canvas"></canvas>
     <canvas
-      id="textureCanvas"
-      style="display: none"
-      width="512"
-      height="512"
+      id="text"
+      style="position: absolute; left: 0px; top: 0px; z-index: 10"
     ></canvas>
+    <canvas id="canvas"></canvas>
 
     <script type="module" src="src/index.js"></script>
   </body>

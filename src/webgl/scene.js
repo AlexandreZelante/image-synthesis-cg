@@ -1,46 +1,36 @@
-let cubeRotation = 0;
+import { createBuffer, bindBuffer } from "./buffer.js";
 
-const drawCube = (gl, programInfo, buffers) => {
-  const numComponents = 3;
-  const type = gl.FLOAT;
-  const normalize = false;
-  const stride = 0;
-  const offset = 0;
+let animationFrameId;
 
-  gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
-  gl.vertexAttribPointer(
-    programInfo.attribLocations.vertexPosition,
-    numComponents,
-    type,
-    normalize,
-    stride,
-    offset
-  );
-  gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
+const matrixes = {
+  model: mat4.create(),
+  view: mat4.create(),
+  normal: mat4.create(),
+  projection: mat4.create(),
+  rotation: {
+    x: mat4.create(),
+    y: mat4.create(),
+  },
 };
 
-const drawTexture = (gl, programInfo, buffers) => {
-  {
-    const numComponents = 2;
-    const type = gl.FLOAT;
-    const normalize = false;
-    const stride = 0;
-    const offset = 0;
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.textureCoord);
-    gl.vertexAttribPointer(
-      programInfo.attribLocations.textureCoord,
-      numComponents,
-      type,
-      normalize,
-      stride,
-      offset
-    );
-    gl.enableVertexAttribArray(programInfo.attribLocations.textureCoord);
-  }
+const config = {
+  rotation: {
+    speed: 0.01,
+    axes: [0, 1, 0],
+  },
 };
 
-const drawScene = (gl, programInfo, buffers, texture, deltaTime) => {
-  gl.clearColor(0.0, 0.0, 0.0, 1.0);
+const multiplyMatrixes = (mvp, mv, { model, view, projection }) => {
+  mat4.multiply(mv, view, model);
+  mat4.multiply(mvp, projection, mv);
+};
+
+const generateNormalMatrix = (normal, mv) => {
+  mat4.invert(normal, mv);
+  mat4.transpose(normal, normal);
+};
+
+const drawScene = (gl, program, model) => {
   gl.clearDepth(1.0);
   gl.enable(gl.DEPTH_TEST);
   gl.depthFunc(gl.LEQUAL);
@@ -51,46 +41,81 @@ const drawScene = (gl, programInfo, buffers, texture, deltaTime) => {
   const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
   const zNear = 0.1;
   const zFar = 100.0;
-  const projectionMatrix = mat4.create();
 
-  mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
+  mat4.perspective(matrixes.projection, fieldOfView, aspect, zNear, zFar);
+  mat4.translate(matrixes.model, matrixes.model, [-0.0, 0.0, -16.0]);
 
-  const modelViewMatrix = mat4.create();
+  gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
-  mat4.translate(modelViewMatrix, modelViewMatrix, [-0.0, 0.0, -6.0]);
-  mat4.rotate(modelViewMatrix, modelViewMatrix, cubeRotation, [0, 0, 1]);
-  mat4.rotate(modelViewMatrix, modelViewMatrix, cubeRotation * 0.7, [0, 1, 0]);
+  drawModel(gl, program, model);
+};
 
-  drawCube(gl, programInfo, buffers);
-  drawTexture(gl, programInfo, buffers);
-
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
-
-  gl.useProgram(programInfo.program);
-
-  gl.uniformMatrix4fv(
-    programInfo.uniformLocations.projectionMatrix,
-    false,
-    projectionMatrix
-  );
-  gl.uniformMatrix4fv(
-    programInfo.uniformLocations.modelViewMatrix,
-    false,
-    modelViewMatrix
-  );
-
-  gl.activeTexture(gl.TEXTURE0);
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.uniform1i(programInfo.uniformLocations.uSampler, 0);
-
-  {
-    const vertexCount = 36;
-    const type = gl.UNSIGNED_SHORT;
-    const offset = 0;
-    gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
+const getPowerOfTwo = (size) => {
+  let power = 1;
+  while (power < size) {
+    power *= 2;
   }
+  return power;
+};
 
-  cubeRotation += deltaTime;
+const drawText = (gl) => {
+  const text = "IGOR ANTUN DA COSTA GAGO";
+  const textSize = 24;
+
+  var canvas = document.getElementById("text");
+  var ctx = canvas.getContext("2d");
+
+  ctx.font = `${textSize}px monospace`;
+  canvas.width = gl.canvas.width; // getPowerOfTwo(ctx.measureText(text).width);
+  canvas.height = gl.canvas.height; //getPowerOfTwo(2 * textSize);
+
+  ctx.fillStyle = "purple"; // This determines the text colour, it can take a hex value or rgba value (e.g. rgba(255,0,0,0.5))
+  ctx.textAlign = "center"; // This determines the alignment of text, e.g. left, center, right
+  ctx.textBaseline = "middle"; // This determines the baseline of the text, e.g. top, middle, bottom
+  ctx.font = `${textSize}px monospace`;
+
+  ctx.fillText(text, gl.canvas.width / 2, gl.canvas.height / 2);
+};
+
+export const drawModel = (gl, program, model) => {
+  const vertexes = model.vertexes;
+
+  const positionBuffer = createBuffer(gl, vertexes);
+  bindBuffer(gl, program, "aVertexPosition", positionBuffer);
+
+  const mvMatrix = mat4.create();
+  const mvpMatrix = mat4.create();
+
+  const uniformMatrixes = {
+    normal: gl.getUniformLocation(program, "normalMatrix"),
+    matrix: gl.getUniformLocation(program, "matrix"),
+  };
+
+  const render = () => {
+    animationFrameId = requestAnimationFrame(render);
+
+    drawText(gl, program);
+
+    mat4.rotate(
+      matrixes.model,
+      matrixes.model,
+      config.rotation.speed,
+      config.rotation.axes
+    );
+
+    multiplyMatrixes(mvpMatrix, mvMatrix, matrixes);
+    generateNormalMatrix(matrixes.normal, mvMatrix);
+
+    gl.uniformMatrix4fv(uniformMatrixes.matrix, false, mvpMatrix);
+    gl.uniformMatrix4fv(uniformMatrixes.normal, false, matrixes.normal);
+
+    gl.drawArrays(gl.TRIANGLES, 0, vertexes.length / 3);
+
+    var text = document.getElementById("text");
+    text.style.transform = `rotateY(${-matrixes.rotation.x}deg)`;
+  };
+
+  render();
 };
 
 export default drawScene;
